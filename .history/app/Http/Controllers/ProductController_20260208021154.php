@@ -111,27 +111,7 @@ class ProductController extends Controller
         $data->color = $request->color;
         $data->size = $request->size;
         $data->type = $request->type;
-        
-        $raw = $request->input('recommended_product');
-
-// If nothing selected
-if (empty($raw)) {
-    $data->recommended_product = null;
-} else {
-    // Decode JSON string coming from React
-    $decoded = json_decode($raw, true);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return response()->json([
-            'message' => 'Invalid recommended_product JSON',
-            'error' => json_last_error_msg(),
-        ], 422);
-    }
-
-    // IMPORTANT: wrap inside array
-    $data->recommended_product = [$decoded];
-}
-
+        $data->recommended_product = json_encode($request->recommended_product ?? []);
 
         // Handle product image upload
         if ($request->hasFile('product_image')) {
