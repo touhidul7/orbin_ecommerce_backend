@@ -58,7 +58,7 @@ Route::get('/products/type/{type}', [ProductController::class, 'getProductByType
 Route::get('/sub-category/category/{name}', [ProductController::class, 'getSubCategoryByCategory']);
 // Backup
 
-// Route::get('/list', [BackupController::class, 'list']);
-// Route::post('/create', [BackupController::class, 'create']);
-// Route::get('/download/{file}', [BackupController::class, 'download']);
-// Route::post('/restore', [BackupController::class, 'restore']);
+Route::get('/list', [BackupController::class, 'list']);
+Route::post('/create', [BackupController::class, 'create']);
+Route::get('/download/{file}', [BackupController::class, 'download']);
+Route::post('/restore', [BackupController::class, 'restore']);
