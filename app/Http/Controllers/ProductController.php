@@ -417,6 +417,26 @@ class ProductController extends Controller
             // 'data' => $data
         ]);
     }
+    public function pendingOrder($id)
+    {
+        $data = OrderModel::findOrFail($id);
+        $data->status = 0;
+        $data->save();
+        return response()->json([
+            'message' => 'Order set to pending successfully',
+            // 'data' => $data
+        ]);
+    }
+    public function cancelOrder($id)
+    {
+        $data = OrderModel::findOrFail($id);
+        $data->status = 2;
+        $data->save();
+        return response()->json([
+            'message' => 'Order set to cancelled successfully',
+            // 'data' => $data
+        ]);
+    }
     // delete order
     public function deleteOrder($id)
     {
