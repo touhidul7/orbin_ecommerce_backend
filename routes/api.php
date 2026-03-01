@@ -48,6 +48,9 @@ Route::post('/order/update/{id}', [ProductController::class, 'updateOrder']);
 Route::delete('/order/delete/{id}', [ProductController::class, 'deleteOrder']);
 // order confim by id post request
 Route::post('/order/confirm/{id}', [ProductController::class, 'confirmOrder']);
+// order pending by id post request
+Route::post('/order/pending/{id}', [ProductController::class, 'pendingOrder']);
+Route::post('/order/cancel/{id}', [ProductController::class, 'cancelOrder']);
 // get order by date range
 Route::get('/order/date/{from}/{to}', [ProductController::class, 'getOrderByDate']);
 // get product by sub category

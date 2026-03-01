@@ -111,26 +111,26 @@ class ProductController extends Controller
         $data->color = $request->color;
         $data->size = $request->size;
         $data->type = $request->type;
-        
+
         $raw = $request->input('recommended_product');
 
-// If nothing selected
-if (empty($raw)) {
-    $data->recommended_product = null;
-} else {
-    // Decode JSON string coming from React
-    $decoded = json_decode($raw, true);
+        // If nothing selected
+        if (empty($raw)) {
+            $data->recommended_product = null;
+        } else {
+            // Decode JSON string coming from React
+            $decoded = json_decode($raw, true);
 
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return response()->json([
-            'message' => 'Invalid recommended_product JSON',
-            'error' => json_last_error_msg(),
-        ], 422);
-    }
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'message' => 'Invalid recommended_product JSON',
+                    'error' => json_last_error_msg(),
+                ], 422);
+            }
 
-    // IMPORTANT: wrap inside array
-    $data->recommended_product = [$decoded];
-}
+            // IMPORTANT: wrap inside array
+            $data->recommended_product = [$decoded];
+        }
 
 
         // Handle product image upload
@@ -182,7 +182,91 @@ if (empty($raw)) {
     }
 
 
+
+
+
+
     // product update
+
+    //     public function updateProduct(Request $request, $id)
+    // {
+
+    //     $data = ProductModel::find($id);
+    //     $data->product_name = $request->product_name;
+    //     $data->select_category = $request->select_category;
+    //     $data->availability = $request->availability;
+    //     $data->regular_price = $request->regular_price;
+    //     $data->selling_price = $request->selling_price;
+    //     $data->product_description = $request->product_description;
+    //     $data->p_short_des = $request->p_short_des;
+    //     $data->select_sub_category = $request->select_sub_category;
+    //     $data->color = $request->color;
+    //     $data->size = $request->size;
+    //     $data->type = $request->type;
+
+    //     // ✅ Recommended product (ADD THIS)
+    //     $raw = $request->input('recommended_product');
+    //     if (empty($raw)) {
+    //         $data->recommended_product = null;
+    //     } else {
+    //         $decoded = json_decode($raw, true);
+    //         if (json_last_error() !== JSON_ERROR_NONE) {
+    //             return response()->json([
+    //                 'message' => 'Invalid recommended_product JSON',
+    //                 'error' => json_last_error_msg(),
+    //             ], 422);
+    //         }
+    //         $data->recommended_product = json_encode([$decoded]);
+    //     }
+
+    //     if ($request->file('product_image')) {
+    //         $file = $request->file('product_image');
+    //         $filename = date('Ymdhi') . $file->getClientOriginalName();
+    //         $file->move(public_path('admin/product'), $filename);
+    //         $data['product_image'] = $filename;
+    //     }
+
+    //     // Handle image gallery upload - FIXED VERSION (preserves existing images)
+    //     if ($request->hasFile('image_gallary')) {
+    //         $files = $request->file('image_gallary');
+
+    //         // Get existing gallery images
+    //         $existingGallery = [];
+    //         if (!empty($data->image_gallary)) {
+    //             $existingGallery = json_decode($data->image_gallary, true);
+    //             if (!is_array($existingGallery)) {
+    //                 $existingGallery = [];
+    //             }
+    //         }
+
+    //         $newFilenames = [];
+
+    //         // If only one file is uploaded, wrap it in an array
+    //         if (!is_array($files)) {
+    //             $files = [$files];
+    //         }
+
+    //         // Loop through new files and save them
+    //         foreach ($files as $file) {
+    //             $filename = date('Ymdhi') . '_' . uniqid() . '_' . $file->getClientOriginalName();
+    //             $file->move(public_path('admin/product/gallery'), $filename);
+    //             $newFilenames[] = $filename;
+    //         }
+
+    //         // Merge existing and new images
+    //         $allFilenames = array_merge($existingGallery, $newFilenames);
+
+    //         // Store all file paths as JSON in the database
+    //         $data->image_gallary = json_encode($allFilenames);
+    //     }
+    //     // If no new gallery images are uploaded, existing ones remain unchanged
+
+    //     $data->save();
+    //     return response()->json(['message' => 'Product updated successfully']);
+    // }
+
+
+
     public function updateProduct(Request $request, $id)
     {
 
@@ -191,24 +275,69 @@ if (empty($raw)) {
         $data->select_category = $request->select_category;
         $data->availability = $request->availability;
         $data->regular_price = $request->regular_price;
-        $data->selling_price  = $request->selling_price;
+        $data->selling_price = $request->selling_price;
         $data->product_description = $request->product_description;
         $data->p_short_des = $request->p_short_des;
         $data->select_sub_category = $request->select_sub_category;
         $data->color = $request->color;
         $data->size = $request->size;
         $data->type = $request->type;
+
+        // ✅ FIXED: Recommended product handling
+        $raw = $request->input('recommended_product');
+        if (empty($raw) || $raw === 'null' || $raw === '') {
+            $data->recommended_product = null;
+        } else {
+            // Check if it's already JSON
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                // It's valid JSON, use it directly
+                $data->recommended_product = json_encode([$decoded]);
+            } else {
+                // It's not JSON, treat it as is
+                $data->recommended_product = $raw;
+            }
+        }
+
+        // Handle main product image
         if ($request->file('product_image')) {
             $file = $request->file('product_image');
             $filename = date('Ymdhi') . $file->getClientOriginalName();
             $file->move(public_path('admin/product'), $filename);
             $data['product_image'] = $filename;
+        } elseif ($request->has('existing_product_image')) {
+            // Keep existing image if no new one is uploaded
+            $data['product_image'] = $request->existing_product_image;
         }
 
-        // Handle image gallery upload
+        // Handle image gallery
+        $existingGallery = [];
+        $newGallery = [];
+
+        // Get existing gallery images that should remain
+        if ($request->has('existing_gallery_images')) {
+            $existingGallery = json_decode($request->existing_gallery_images, true);
+            if (!is_array($existingGallery)) {
+                $existingGallery = [];
+            }
+        }
+
+        // Handle removed images (delete from server)
+        if ($request->has('removed_gallery_images')) {
+            $removedImages = json_decode($request->removed_gallery_images, true);
+            if (is_array($removedImages)) {
+                foreach ($removedImages as $image) {
+                    $imagePath = public_path('admin/product/gallery/' . $image);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath); // Delete the file
+                    }
+                }
+            }
+        }
+
+        // Handle new gallery uploads
         if ($request->hasFile('image_gallary')) {
             $files = $request->file('image_gallary');
-            $filenames = [];
 
             // If only one file is uploaded, wrap it in an array
             if (!is_array($files)) {
@@ -219,19 +348,33 @@ if (empty($raw)) {
             foreach ($files as $file) {
                 $filename = date('Ymdhi') . '_' . uniqid() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('admin/product/gallery'), $filename);
-                $filenames[] = $filename;
+                $newGallery[] = $filename;
             }
+        }
 
-            // Store the file paths as JSON in the database
-            $data->image_gallary = json_encode($filenames);
+        // Merge existing and new gallery images
+        $allGalleryImages = array_merge($existingGallery, $newGallery);
+
+        // Store the combined file paths as JSON in the database
+        if (!empty($allGalleryImages)) {
+            $data->image_gallary = json_encode($allGalleryImages);
         } else {
-            // If no gallery images are uploaded, set it to null
             $data->image_gallary = null;
         }
 
         $data->save();
         return response()->json(['message' => 'Product updated successfully']);
     }
+
+
+
+
+
+
+
+
+
+
 
     public function deleteProduct($id)
     {
@@ -398,6 +541,26 @@ if (empty($raw)) {
         $data->save();
         return response()->json([
             'message' => 'Order confirmed successfully',
+            // 'data' => $data
+        ]);
+    }
+    public function pendingOrder($id)
+    {
+        $data = OrderModel::findOrFail($id);
+        $data->status = 0;
+        $data->save();
+        return response()->json([
+            'message' => 'Order set to pending successfully',
+            // 'data' => $data
+        ]);
+    }
+    public function cancelOrder($id)
+    {
+        $data = OrderModel::findOrFail($id);
+        $data->status = 2;
+        $data->save();
+        return response()->json([
+            'message' => 'Order set to cancelled successfully',
             // 'data' => $data
         ]);
     }
