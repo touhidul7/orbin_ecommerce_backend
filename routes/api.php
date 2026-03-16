@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -65,3 +66,7 @@ Route::get('/sub-category/category/{name}', [ProductController::class, 'getSubCa
 // Route::post('/create', [BackupController::class, 'create']);
 // Route::get('/download/{file}', [BackupController::class, 'download']);
 // Route::post('/restore', [BackupController::class, 'restore']);
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);

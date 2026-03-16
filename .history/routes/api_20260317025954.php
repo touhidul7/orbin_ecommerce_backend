@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +29,9 @@ Route::delete('/category/delete/{id}', [ProductController::class, 'deleteCategor
 Route::get('/products/categories', [ProductController::class, 'getCategory']);
 Route::get('/products/sub-categories', [ProductController::class, 'getSubCategory']);
 
+Route::put('/sub-category/update/{id}', [ProductController::class, 'updateSubCategory']); // Update
+Route::delete('/sub-category/delete/{id}', [ProductController::class, 'deleteSubCategory']); // Delete
+
 // add product
 Route::post('/product/add', [ProductController::class, 'addProduct']);
 Route::get('/products', [ProductController::class, 'getProduct']);
@@ -44,10 +49,24 @@ Route::post('/order/update/{id}', [ProductController::class, 'updateOrder']);
 Route::delete('/order/delete/{id}', [ProductController::class, 'deleteOrder']);
 // order confim by id post request
 Route::post('/order/confirm/{id}', [ProductController::class, 'confirmOrder']);
+// order pending by id post request
+Route::post('/order/pending/{id}', [ProductController::class, 'pendingOrder']);
+Route::post('/order/cancel/{id}', [ProductController::class, 'cancelOrder']);
 // get order by date range
 Route::get('/order/date/{from}/{to}', [ProductController::class, 'getOrderByDate']);
 // get product by sub category
 Route::get('/products/sub-category/{sub_category}', [ProductController::class, 'getSubCategoryProduct']);
 // get product by type
 Route::get('/products/type/{type}', [ProductController::class, 'getProductByType']);
+// get sub category by category
+Route::get('/sub-category/category/{name}', [ProductController::class, 'getSubCategoryByCategory']);
+// Backup
 
+// Route::get('/list', [BackupController::class, 'list']);
+// Route::post('/create', [BackupController::class, 'create']);
+// Route::get('/download/{file}', [BackupController::class, 'download']);
+// Route::post('/restore', [BackupController::class, 'restore']);
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
