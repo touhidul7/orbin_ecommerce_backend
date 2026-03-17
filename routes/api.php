@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourierController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -60,6 +61,10 @@ Route::get('/products/sub-category/{sub_category}', [ProductController::class, '
 Route::get('/products/type/{type}', [ProductController::class, 'getProductByType']);
 // get sub category by category
 Route::get('/sub-category/category/{name}', [ProductController::class, 'getSubCategoryByCategory']);
+// Courier routes
+Route::post('/courier/create-order', [CourierController::class, 'createOrder']);
+Route::get('/courier/status/{consignment_id}', [CourierController::class, 'checkStatus']);
+Route::post('/courier/return-request', [CourierController::class, 'createReturnRequest']);
 // Backup
 
 // Route::get('/list', [BackupController::class, 'list']);
